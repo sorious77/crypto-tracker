@@ -3,9 +3,7 @@ import { useParams } from "react-router-dom";
 const Coin = () => {
   const { coinId } = useParams();
 
-  console.log(coinId);
-
-  return <div>Coin</div>;
+  return <div>{coinId}</div>;
 };
 
 export default Coin;
