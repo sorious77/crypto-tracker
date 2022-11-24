@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
-import {
-  useLocation,
-  useParams,
-  Outlet,
-  Link,
-  useRoutes,
-} from "react-router-dom";
+import { useQuery } from "react-query";
+import { useLocation, useParams, Outlet, Link } from "react-router-dom";
 import styled from "styled-components";
+import { fetchCoin, fetchCoinTicker } from "../api";
 
 const Container = styled.div`
   padding: 0 20px;
@@ -79,12 +75,6 @@ const Tab = styled.div<{ isActive: boolean }>`
   }
 `;
 
-interface CoinState {
-  state: {
-    name: string;
-  };
-}
-
 interface CoinInfo {
   id: string;
   name: string;
@@ -145,35 +135,22 @@ const Coin = () => {
   const { state, pathname } = useLocation();
 
   const [name, setName] = useState(state?.name);
-  const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState<CoinInfo>();
-  const [price, setPrice] = useState<CoinPrice>();
 
-  console.log(pathname.indexOf("chart"));
+  const { isLoading, data: info } = useQuery<CoinInfo>(["info", coinId!], () =>
+    fetchCoin(coinId!)
+  );
 
-  useEffect(() => {
-    (async () => {
-      const coinInfo = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      const coinPrice = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
+  const { isLoading: tickerLoading, data: price } = useQuery<CoinPrice>(
+    ["tickers", coinId!],
+    () => fetchCoinTicker(coinId!)
+  );
 
-      setInfo(coinInfo);
-      setPrice(coinPrice);
-      setLoading(false);
-
-      if (!state || !state.name) {
-        setName(coinInfo.name);
-      }
-    })();
-  }, []);
+  const loading = isLoading || tickerLoading;
 
   return (
     <Container>
       <Header>
-        <Title>{name || "..."}</Title>
+        <Title>{name || info?.name || "..."}</Title>
       </Header>
       {loading ? (
         <Loader>Loading...</Loader>
