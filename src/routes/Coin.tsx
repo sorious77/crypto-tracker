@@ -134,8 +134,6 @@ const Coin = () => {
   const { coinId } = useParams();
   const { state, pathname } = useLocation();
 
-  const [name, setName] = useState(state?.name);
-
   const { isLoading, data: info } = useQuery<CoinInfo>(["info", coinId!], () =>
     fetchCoin(coinId!)
   );
@@ -150,7 +148,7 @@ const Coin = () => {
   return (
     <Container>
       <Header>
-        <Title>{name || info?.name || "..."}</Title>
+        <Title>{state?.name || info?.name || "..."}</Title>
       </Header>
       {loading ? (
         <Loader>Loading...</Loader>
@@ -183,10 +181,14 @@ const Coin = () => {
           </OverView>
           <Tabs>
             <Tab isActive={pathname.indexOf("chart") !== -1}>
-              <Link to="chart">Chart</Link>
+              <Link to="chart" state={{ coinId: coinId }}>
+                Chart
+              </Link>
             </Tab>
             <Tab isActive={pathname.indexOf("price") !== -1}>
-              <Link to="price">Price</Link>
+              <Link to="price" state={{ coinId: coinId }}>
+                Price
+              </Link>
             </Tab>
           </Tabs>
           <Outlet />

@@ -16,4 +16,10 @@ const fetchCoinTicker = (coinId: string) => {
   );
 };
 
-export { fetchCoins, fetchCoin, fetchCoinTicker };
+const fetchCoinHistory = (coinId: string) => {
+  return fetch(
+    `https://ohlcv-api.nomadcoders.workers.dev/?coinId=${coinId}`
+  ).then((response) => response.json());
+};
+
+export { fetchCoins, fetchCoin, fetchCoinTicker, fetchCoinHistory };
