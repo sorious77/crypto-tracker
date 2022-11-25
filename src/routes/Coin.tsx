@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { useLocation, useParams, Outlet, Link } from "react-router-dom";
+import {
+  useLocation,
+  useParams,
+  Outlet,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoin, fetchCoinTicker } from "../api";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   padding: 0 20px;
@@ -17,9 +23,15 @@ const Header = styled.header`
   align-items: center;
 `;
 
-const Title = styled.h1`
+const Title = styled.div`
   color: ${(props) => props.theme.accentColor};
   font-size: 48px;
+
+  span:first-child {
+    position: absolute;
+    left: 50px;
+    cursor: pointer;
+  }
 `;
 
 const Loader = styled.div`
@@ -30,7 +42,7 @@ const Loader = styled.div`
 const OverView = styled.div`
   background-color: black;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   padding: 15px 20px;
   border-radius: 10px;
@@ -50,11 +62,11 @@ const OverViewItem = styled.div`
 
 const Description = styled.div`
   margin: 20px 0;
+  padding: 0 6px;
 `;
 
 const Tabs = styled.div`
-  background-color: black;
-  margin: 20px 0;
+  margin: 20px 0 10px 0;
   padding: 15px 20px;
   border-radius: 10px;
   display: flex;
@@ -73,6 +85,15 @@ const Tab = styled.div<{ isActive: boolean }>`
   &:hover {
     transform: scale(1.1);
   }
+`;
+
+const UnderLine = styled(Link)<{ isActive: boolean }>`
+  width: 10px;
+  padding: 0 4px 4px 4px;
+
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isActive ? props.theme.accentColor : props.theme.textColor};
 `;
 
 interface CoinInfo {
@@ -96,7 +117,7 @@ interface CoinInfo {
   last_data_at: string;
 }
 
-interface CoinPrice {
+export interface CoinPrice {
   id: string;
   name: string;
   symbol: string;
@@ -133,6 +154,7 @@ interface CoinPrice {
 const Coin = () => {
   const { coinId } = useParams();
   const { state, pathname } = useLocation();
+  const navigate = useNavigate();
 
   const { isLoading, data: info } = useQuery<CoinInfo>(["info", coinId!], () =>
     fetchCoin(coinId!)
@@ -140,15 +162,28 @@ const Coin = () => {
 
   const { isLoading: tickerLoading, data: price } = useQuery<CoinPrice>(
     ["tickers", coinId!],
-    () => fetchCoinTicker(coinId!)
+    () => fetchCoinTicker(coinId!),
+    {
+      refetchInterval: 5000,
+    }
   );
+
+  const goBack = () => {
+    navigate(-1);
+  };
 
   const loading = isLoading || tickerLoading;
 
   return (
     <Container>
+      <Helmet>
+        <title>{state?.name || info?.name || "..."}</title>
+      </Helmet>
       <Header>
-        <Title>{state?.name || info?.name || "..."}</Title>
+        <Title>
+          <span onClick={goBack}>←</span>
+          <span>{state?.name || info?.name || "..."}</span>
+        </Title>
       </Header>
       {loading ? (
         <Loader>Loading...</Loader>
@@ -164,8 +199,8 @@ const Coin = () => {
               <span>{info?.symbol}</span>
             </OverViewItem>
             <OverViewItem>
-              <span>OPEN SOURCE:</span>
-              <span>{info?.open_source ? "TRUE" : "FALSE"}</span>
+              <span>PRICE:</span>
+              <span>{`$${price?.quotes.USD.price.toFixed(3)}`}</span>
             </OverViewItem>
           </OverView>
           <Description>{info?.description}</Description>
@@ -181,14 +216,22 @@ const Coin = () => {
           </OverView>
           <Tabs>
             <Tab isActive={pathname.indexOf("chart") !== -1}>
-              <Link to="chart" state={{ coinId: coinId }}>
+              <UnderLine
+                to="chart"
+                state={{ coinId: coinId }}
+                isActive={pathname.indexOf("chart") !== -1}
+              >
                 Chart
-              </Link>
+              </UnderLine>
             </Tab>
             <Tab isActive={pathname.indexOf("price") !== -1}>
-              <Link to="price" state={{ coinId: coinId }}>
+              <UnderLine
+                to="price"
+                state={{ coinId: coinId }}
+                isActive={pathname.indexOf("price") !== -1}
+              >
                 Price
-              </Link>
+              </UnderLine>
             </Tab>
           </Tabs>
           <Outlet />
