@@ -40,7 +40,7 @@ const Loader = styled.div`
 `;
 
 const OverView = styled.div`
-  background-color: black;
+  background-color: ${(props) => props.theme.boxColor};
   display: flex;
   justify-content: space-around;
   align-items: center;

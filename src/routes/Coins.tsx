@@ -25,8 +25,8 @@ const Title = styled.h1`
 const CoinList = styled.ul``;
 
 const Coin = styled.li`
-  background-color: ${(props) => props.theme.textColor};
-  color: ${(props) => props.theme.bgColor};
+  background-color: ${(props) => props.theme.boxColor};
+  color: ${(props) => props.theme.textColor};
   margin-bottom: 10px;
   border-radius: 10px;
   cursor: pointer;

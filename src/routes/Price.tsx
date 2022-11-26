@@ -8,7 +8,7 @@ import { Helmet } from "react-helmet";
 const Container = styled.div``;
 
 const OverView = styled.div`
-  background-color: black;
+  background-color: ${(props) => props.theme.boxColor};
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -29,8 +29,8 @@ const OverViewItem = styled.div`
   }
 `;
 
-const LargeText = styled.div<{ color: string }>`
-  color: ${(props) => props.color};
+const LargeText = styled.div`
+  color: ${(props) => props.theme.textColor};
   font-size: 25px;
 `;
 
@@ -41,7 +41,7 @@ const Change = styled.div`
 `;
 
 const ChangeItem = styled.div`
-  background-color: black;
+  background-color: ${(props) => props.theme.boxColor};
   border-radius: 10px;
   padding: 20px 10px;
   display: flex;
@@ -88,9 +88,7 @@ const Price = () => {
               </span>
             </OverViewItem>
             <OverViewItem>
-              <LargeText color="white">
-                ${data?.quotes.USD.ath_price.toFixed(3)}
-              </LargeText>
+              <LargeText>${data?.quotes.USD.ath_price.toFixed(3)}</LargeText>
             </OverViewItem>
           </OverView>
           <Change>
